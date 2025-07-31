@@ -11,12 +11,8 @@ import (
 func NewRouter(app *app.App) http.Handler {
 	router := chi.NewRouter()
 
-	router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("content-type", "application/json")
-		w.Write([]byte(`{"message":"Hi There:)"}`))
-	})
-
-	router.Get("/users", app.ListUsers)
+	router.Get("/user", app.ListUsers)
+  router.Post("/user", app.CreateUser)
 
 	return router
 }

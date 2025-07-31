@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +11,7 @@ import (
 
 	"github.com/kai-gibson/workout_tracker/internal/app"
 	"github.com/kai-gibson/workout_tracker/internal/config"
-	dbmodel "github.com/kai-gibson/workout_tracker/internal/db"
+	model "github.com/kai-gibson/workout_tracker/internal/db"
 	"github.com/kai-gibson/workout_tracker/internal/handler"
 	"github.com/kai-gibson/workout_tracker/internal/logging"
 )
@@ -30,19 +29,13 @@ func main() {
 		log.Fatalf("Error loading config: %v\n", err)
 	}
 
-	logger := logging.NewLogger(config)
-
-	db, err := sqlx.Connect(
-		"postgres",
-		config.DbDsn(),
-	)
-
+	db, err := sqlx.Connect("postgres", config.DbDsn())
 	if err != nil {
 		log.Fatalf("Error opening db: %v", err)
 	}
 
 	if !config.SkipMigrate() {
-		err = dbmodel.MigrateDB(db.DB)
+		err = model.MigrateDB(db.DB)
 		if err != nil {
 			log.Fatalf("Migration error: %v\n", err)
 		}
@@ -51,7 +44,7 @@ func main() {
 	app := &app.App{
 		DB:     db,
 		Config: &config,
-		Logger: logger,
+		Logger: logging.NewLogger(config),
 	}
 
 	router := handler.NewRouter(app)
